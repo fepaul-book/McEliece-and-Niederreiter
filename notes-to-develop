@@ -1,0 +1,91 @@
+# file overview 
+Misc [self-contained]
+    InvalidCodewordError,   - defines new Exception called InvalidCodewordError
+    string2bits,            - Takes a plaintext and returns its binary representation 
+                            - with as much padding as needed to make its length divisible by k.
+    bits2string             - Returns the string that msg represents.
+
+ExtensionField [self-contained]
+    primitivePolynomials,   - dictionary of irreducible polynomials for given degree
+    add,                    - add polynomials
+    multiply,               - in GF(2)
+    divide,                 - only quotient in GF(2) with extended Euclidean
+    modulo,                 - only remainder
+    power,                  - x^n modulo g in GF(2^m)
+    inverse,                - of a mod g
+    squareroot,             - of p in GF(2^m)
+    polygcd                 - of polynomials
+
+FiniteFieldMatrix [ExtensionField Random Nemo LinearAlgebra]
+    multiplyPolyMatrices!,  - Multiplies two matrices in GF(2^m)
+    gaussianEliminationColumnPivoting!, - Applies Gauss-Jordan elimination
+                                        - to matrix H of dimension nxk. 
+                                        - It also permutes a given code support 
+                                        - to keep a coherent goppa code.
+    GeneratorInverse!,                  - Finds the right inverse of a generator matrix.
+    getPermutation,                     - Returns a random permutation matrix of dimension nxn.
+    getScrambler                        - Returns a random binary non-singular matrix of dimension kxk.
+
+Polynomials [ExtensionField]
+    PolynomialConstants,                - defines 0, 1, x as polynomial
+    monomial,                           - Returns a monomial of the given degree.
+    evaluate!,                          - Evaluates p(x) modulo g(x).
+    addRing!,                           - Adds two polynomials with coefficients in GF(2^m).
+    multiplyRing!,                      - Multiplies two polynomials with coefficients in GF(2^m).
+    divRing!,                           - Returns the quotient of a/b with coefficients in GF(2^m).
+    modRing!,                           - Returns the remainder of a/b with coefficients in GF(2^m).
+    makePolynomialMonic!,               - Returns p as a monic polynomial by dividing p by the
+                                        - inverse of its leading coefficient.
+    inverseRing!,                       - Computes the inverse of a mod g with coefficients in GF(2^m). 
+                                        - Throws an exception if the inverse doesn't exist.
+    isPolynomialIrreducible!,           - Checks if the given polynomial has at least one root in GF(2^m). 
+                                        - TODO: is irreducible the right term here? i guess not
+                                        - Returns true if it doesn't have roots, false otherwise.
+    randomPoly,                         - Returns a random monic irreducible polynomial of degree t
+                                        - over the extension field GF(2^m).
+    splitPolynomial!                    - Splits the polynomial p into even and odd terms in GF(2^m).
+
+Goppa [Misc ExtensionField FiniteFieldMatrix Polynomials StatsBase LinearAlgebra DelimitedFiles]
+    generateGoppaCode,                  - Generates a (n, k) irreducible linear Goppa code with minimum
+                                        - distance d >= 2t + 1. Returns the generator matrix G, the goppa
+                                        - polynomial, the code support, and the number of rows k of G.
+                                        - return G, goppaPolynomial, codeSupport, k
+    decode!                             - Given a msg with noise, finds a codeword in the goppa code defined
+                                        - by the goppaPolynomial and codeSupport in GF(2^m)
+
+
+McEliece [Misc FiniteFieldMatrix GoppaCode Random StatsBase DelimitedFiles]          
+    generateKeys,                       - Generates the public and private keys for a McEliece cryptosystem with length n
+                                        - and with capacity to correct up to t errors.
+                                        - returns (GPub= S*G*P, t), (GSInverse, PInverse, goppaPolynomial, codeSupport, m)
+    saveKeys,                           - Saves the given keys to text files in a format friendly for Julia.
+    encrypt,                            - enc returns array of ciphertexts of length k. Takes an arbitrarily long plaintext and encrypts with a public key from a McEliece
+                                        - cryptosystem. Returns size(plaintext)/k codewords with t errors.
+    decrypt,                            - Decrypts an array of codewords (msg) using a private key, and
+                                        - returns the plaintext as a string.      
+    haltingCheck                        - Checks that a given pair of keys correctly finishes, i.e. always determines whether or not a cyphertext
+                                        - is valid or not, by trying to decrypt random vectors.
+
+Test [McEliece DelimitedFiles]
+    testKeyGeneration                   - Times key generation, encryption and decryption of the implementation. If you want, you can save the
+                                        - keys to text files during the process.
+                                        - n, t, and m are the parameters for the goppa code. teststrings is the list of strings to encrypt and
+                                        - decrypt.
+
+
+
+# possible optimizations
+
+- is third matrix calculated too?
+- matrix multiplication use julia built in multiplication and calculate back to finite field afterwards
+- inverse computation by Nemo - is good
+
+# todo
+
+create niederreiter version of goppa code creation - return H instead of G
+
+delete S and P for optimized version by parameter
+add niederreiter
+add documentation
+add test cases
+add github actions

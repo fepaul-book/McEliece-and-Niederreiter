@@ -24,6 +24,9 @@ export
 include("./ExtensionField.jl")
 using .ExtensionField
 
+"""
+defines 0, 1, x as polynomial
+"""
 PolynomialConstants = Dict(
     '0' => Array{UInt32, 1}([0]),
     '1' => Array{UInt32, 1}([1]),

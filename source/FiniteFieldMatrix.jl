@@ -8,9 +8,10 @@ Last updated: 2019/July/15
 module FiniteFieldMatrix
 
 using Random
-using Nemo
+using Nemo # math package for commutative algebra, number theory and group theory https://github.com/Nemocas/Nemo.jl
 using LinearAlgebra
 
+# TODO: only include or only using the file?
 include("./ExtensionField.jl")
 using .ExtensionField
 
@@ -131,7 +132,7 @@ function gaussianEliminationColumnPivoting!(H, n, codeSupport)
                 end
             end
         end
-    end
+    end 
 
     for i in 2:n
         for j in 1:(i-1)

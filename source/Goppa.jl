@@ -9,7 +9,8 @@ module GoppaCode
 
 export
     generateGoppaCode,
-    decode!
+    decode!,
+    findError
 
 include("./Polynomials.jl")
 using .Polynomials
@@ -251,4 +252,44 @@ function decode!(msg, goppaPolynomial, codeSupport, m, t)
     return msg
 end
 
+end # GoppaCode
+
+
+#=
+Function necessary for niederreiter crypto system.
+
+Author: Felix Peter Paul
+Last updated: 2023/November/15
+=#
+"""
+findError(msg, goppaPolynomial, codeSupport, m, t)
+
+Given a msg with noise, finds the error in the message  in the goppa code defined
+by the goppaPolynomial and codeSupport in GF(2^m).
+return errors (array containing indices of error positions), totalErrors (number of errors found)
+"""
+function findError(msg, goppaPolynomial, codeSupport, m, t)
+    # Compute syndrome
+    msgSyndrome = syndrome!(msg, codeSupport, goppaPolynomial, m)
+    if msgSyndrome == PolynomialConstants['0']
+        throw(InvalidCodewordError())
+    end
+
+    tau = syndromeSquareRoot!(msgSyndrome, goppaPolynomial, m)
+
+    # Using the extended euclidean algorithm to find the error locator polynomial.
+    a, b = halfwayXGCD!(goppaPolynomial, tau, t, m)
+    sigma = addRing!(multiplyRing!(a, a, m), multiplyRing!(PolynomialConstants['x'], multiplyRing!(b, b, m), m))
+    sigma = makePolynomialMonic!(sigma, m)
+
+    # Finding the roots of the error locator polynomial.
+    errors, totalErrors = findRootsErrorLocatorPolynomial!(sigma, codeSupport, m)
+
+    # Checking that it was a valid cyphertext.
+    if totalErrors < t
+        throw(InvalidCodewordError())
+    end
+
+    # Correcting the t errors.
+    return errors, totalErrors
 end # GoppaCode

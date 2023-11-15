@@ -65,6 +65,7 @@ end
 
 Generates the public and private keys for a McEliece cryptosystem with length n
 and with capacity to correct up to t errors.
+returns (GPub, t), (GSInverse, PInverse, goppaPolynomial, codeSupport, m)
 """
 function generateKeys(n, t, m)
     if n > 2^m

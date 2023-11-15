@@ -12,6 +12,9 @@ export InvalidCodewordError,
     string2bits,
     bits2string
 
+"""
+defines new Exception called InvalidCodewordError
+"""
 struct InvalidCodewordError <: Exception end
 
 """
