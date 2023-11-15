@@ -19,6 +19,7 @@ export
     multiplyPolyMatrices!,
     gaussianEliminationColumnPivoting!,
     GeneratorInverse!,
+    ControlMatrixInverse!,
     getPermutation,
     getScrambler
 
@@ -155,6 +156,18 @@ function GeneratorInverse!(G)
     AInverse = BinaryInverse!(A)
     return (transpose(G) * AInverse) .% 2
 end
+
+"""
+    ControlMatrixInverse(H)
+
+Finds the left inverse of a control matrix.
+"""
+function ControlMatrixInverse!(H)
+    A = (H * transpose(H)) .% 2
+    AInverse = BinaryInverse!(A)
+    return (transpose(H) * AInverse) .% 2
+end
+
 
 """
     BinaryInverse!(A)

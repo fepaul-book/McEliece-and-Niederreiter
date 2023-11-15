@@ -52,9 +52,23 @@ Goppa [Misc ExtensionField FiniteFieldMatrix Polynomials StatsBase LinearAlgebra
                                         - return G, goppaPolynomial, codeSupport, k
     decode!                             - Given a msg with noise, finds a codeword in the goppa code defined
                                         - by the goppaPolynomial and codeSupport in GF(2^m)
+    generateGoppaCodeNiederreiter       - same as generateGoppaCode but returns control matrix H instead of generator matrix G
 
 
 McEliece [Misc FiniteFieldMatrix GoppaCode Random StatsBase DelimitedFiles]          
+    generateKeys,                       - Generates the public and private keys for a McEliece cryptosystem with length n
+                                        - and with capacity to correct up to t errors.
+                                        - returns (GPub= S*G*P, t), (GSInverse, PInverse, goppaPolynomial, codeSupport, m)
+    saveKeys,                           - Saves the given keys to text files in a format friendly for Julia.
+    encrypt,                            - enc returns array of ciphertexts of length k. Takes an arbitrarily long plaintext and encrypts with a public key from a McEliece
+                                        - cryptosystem. Returns size(plaintext)/k codewords with t errors.
+    decrypt,                            - Decrypts an array of codewords (msg) using a private key, and
+                                        - returns the plaintext as a string.      
+    haltingCheck                        - Checks that a given pair of keys correctly finishes, i.e. always determines whether or not a cyphertext
+                                        - is valid or not, by trying to decrypt random vectors.
+
+Niederreiter [Misc FiniteFieldMatrix GoppaCode Random StatsBase DelimitedFiles]
+    IMPLEMENTS NIEDERREITER ONLY AS A KEM (CAN ONLY ENCRYPT RANDOM ERROR VECTOR OF WEIGHT EQUAL t)       
     generateKeys,                       - Generates the public and private keys for a McEliece cryptosystem with length n
                                         - and with capacity to correct up to t errors.
                                         - returns (GPub= S*G*P, t), (GSInverse, PInverse, goppaPolynomial, codeSupport, m)
@@ -72,13 +86,16 @@ Test [McEliece DelimitedFiles]
                                         - n, t, and m are the parameters for the goppa code. teststrings is the list of strings to encrypt and
                                         - decrypt.
 
+                                    
+
 
 
 # possible optimizations
 
-- is third matrix calculated too?
+- is third matrix calculated too? - NO, so this is optimized
 - matrix multiplication use julia built in multiplication and calculate back to finite field afterwards
 - inverse computation by Nemo - is good
+- store keys without identity matrix
 
 # todo
 

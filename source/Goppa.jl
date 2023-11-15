@@ -10,7 +10,8 @@ module GoppaCode
 export
     generateGoppaCode,
     decode!,
-    findError
+    findError,
+    generateGoppaCodeNiederreiter
 
 include("./Polynomials.jl")
 using .Polynomials
@@ -124,6 +125,30 @@ function generateGoppaCode(n::Int, t::Int, m::Int)
     G = hcat(ATransposed, Matrix{UInt32}(I, k, k))
 
     return G, goppaPolynomial, codeSupport, k
+end
+
+"""
+    generateGoppaCodeNiederreiter(n::Int, t::Int, m::Int)
+
+Generates a (n, k) irreducible linear Goppa code with minimum
+distance d >= 2t + 1. Returns the generator matrix G, the goppa
+polynomial, the code support, and the number of rows k of G.
+"""
+function generateGoppaCodeNiederreiter(n::Int, t::Int, m::Int)
+    # Get polynomials
+    moduloPolynomial = primitivePolynomials[m]
+    goppaPolynomial = randomPoly(t, m)
+    # Get code support
+    codeSupport = selectCodeSupport(n, m)
+
+    # Compute H = YZ
+    Y = getY!(codeSupport, t, moduloPolynomial)
+    Z = getZ!(goppaPolynomial, moduloPolynomial, codeSupport)
+    T = multiplyPolyMatrices!(Y, Z, moduloPolynomial)
+    H = toBits!(T, t, n, m)
+    gaussianEliminationColumnPivoting!(H, m*t, codeSupport)
+    k = n - m*t
+    return H, goppaPolynomial, codeSupport, k
 end
 
 """
